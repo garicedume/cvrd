@@ -1,0 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-brand-yellow: #fbbf24;
+  --color-brand-bg: #f4f2f2;
+  --font-poppins: 'Poppins', sans-serif;
+}
+
+:root {
+  --bg-main: #f4f2f2;
+  --primary-yellow: #fbbf24;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--bg-main);
+  color: #1f2937;
+  min-height: 100vh;
+}
+
+/* Efecto Liquid Glass Moderno */
+.liquid-glass {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+}
+
+.liquid-glass-card {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+}
+
+/* Configuración de Sangrado y Formato Carta para el CV */
+.page-letter {
+  width: 8.5in;
+  height: 11in;
+  padding: 0.6in;
+  box-sizing: border-box;
+  background: #ffffff;
+}
+
+/* Bloqueo estricto de selección y arrastre de imágenes sin advertencias de linter */
+img {
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  pointer-events: none;
+}

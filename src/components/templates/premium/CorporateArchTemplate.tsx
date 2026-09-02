@@ -1,0 +1,435 @@
+'use client';
+
+import React from 'react';
+import { CVData } from '@/types/cv';
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Globe,
+  User,
+  GraduationCap,
+  Briefcase,
+  Sparkles,
+  Users,
+  Languages as LanguagesIcon,
+  Award,
+  CheckCircle2,
+  Building2,
+} from 'lucide-react';
+
+interface Props {
+  data: CVData;
+}
+
+export const CorporateArchTemplate: React.FC<Props> = ({ data }) => {
+  const {
+    contact,
+    summary,
+    experiences = [],
+    education = [],
+    skills = [],
+    languages = [],
+    references = [],
+    fontFamily = 'Inter',
+    colorScheme = '#fbbf24',
+  } = data;
+
+  // Acento dinámico (Oro Amber por defecto)
+  const accent =
+    colorScheme === '#000000' || colorScheme === '#171717'
+      ? '#fbbf24'
+      : colorScheme || '#fbbf24';
+
+  // Separación del nombre: Primer nombre en BOLD y Apellidos en LIGHT
+  const rawName = (contact.fullName || 'Carlos R. Mendoza').trim();
+  const nameParts = rawName.split(' ');
+  const splitIndex = nameParts.length > 1 ? Math.ceil(nameParts.length / 2) : 1;
+  const firstName = nameParts.slice(0, splitIndex).join(' ');
+  const lastName = nameParts.slice(splitIndex).join(' ');
+
+  // Iniciales de respaldo sin foto
+  const initials =
+    nameParts.length > 1
+      ? (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase()
+      : rawName.slice(0, 2).toUpperCase();
+
+  // Radio dinámico de la foto
+  const getPhotoRadius = () => {
+    switch (contact.photoShape) {
+      case 'square':
+        return 'rounded-none';
+      case 'rounded-rect':
+        return 'rounded-2xl';
+      default:
+        return 'rounded-full';
+    }
+  };
+
+  // Filtrado de elementos válidos
+  const validExperiences = experiences.filter(
+    (exp) => exp.position?.trim() || exp.company?.trim()
+  );
+  const validEducation = education.filter(
+    (edu) => edu.degree?.trim() || edu.institution?.trim()
+  );
+  const validSkills = skills.filter((s) => s.name?.trim());
+  const validLanguages = languages.filter((l) => l.language?.trim());
+  const validReferences = references.filter((r) => r.name?.trim());
+
+  // Porcentaje numérico para barras de habilidades[cite: 10]
+  const getSkillPercent = (level?: string) => {
+    switch (level) {
+      case 'Experto':
+        return '95%';
+      case 'Avanzado':
+        return '80%';
+      case 'Intermedio':
+        return '65%';
+      case 'Básico':
+        return '45%';
+      default:
+        return '75%';
+    }
+  };
+
+  return (
+    <div
+      className={`relative bg-white text-neutral-900 font-${
+        fontFamily || 'Inter'
+      } text-[10.5px] leading-relaxed w-full min-h-264 flex selection:bg-neutral-200 overflow-hidden`}
+    >
+      {/* ========================================================================= */}
+      {/* 1. COLUMNA IZQUIERDA (~35% - NAVY MEDIANOCHE + BASE EN ARCO DORADO)        */}
+      {/* ========================================================================= */}
+      <aside className="w-[35%] bg-[#0e131f] text-white flex flex-col justify-between shrink-0 relative shadow-lg">
+        <div className="p-7 pb-4 space-y-6">
+          {/* Avatar Circular con Doble Marco de Acento */}
+          <div className="flex justify-center pt-1">
+            {contact.photoUrl ? (
+              <div
+                className="w-34 h-34 p-1 rounded-full border-2 shadow-2xl"
+                style={{ borderColor: accent }}
+              >
+                <div className="w-full h-full rounded-full overflow-hidden border-2 border-white/80 bg-neutral-900">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={contact.photoUrl}
+                    alt={rawName}
+                    className={`w-full h-full object-cover grayscale contrast-125 ${getPhotoRadius()}`}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div
+                className="w-34 h-34 rounded-full border-4 bg-[#151c2d] flex flex-col items-center justify-center text-white shadow-2xl"
+                style={{ borderColor: accent }}
+              >
+                <User className="w-12 h-12 mb-1 opacity-70" style={{ color: accent }} />
+                <span className="text-sm font-black tracking-widest">{initials}</span>
+              </div>
+            )}
+          </div>
+
+          {/* CONTACTO */}
+          <section className="space-y-2.5">
+            <h2
+              className="text-[12px] font-black uppercase tracking-[0.2em] border-b pb-1 flex items-center gap-2"
+              style={{ color: accent, borderColor: `${accent}40` }}
+            >
+              <Mail className="w-3.5 h-3.5 shrink-0" style={{ color: accent }} />
+              <span>Contacto</span>
+            </h2>
+
+            <div className="space-y-2 text-[9.5px] text-neutral-300 pl-0.5">
+              {contact.phone && (
+                <div className="flex items-center gap-2.5">
+                  <div
+                    className="w-4 h-4 rounded-xs flex items-center justify-center text-neutral-950 shrink-0 shadow-xs"
+                    style={{ backgroundColor: accent }}
+                  >
+                    <Phone className="w-2.5 h-2.5" />
+                  </div>
+                  <span className="truncate">{contact.phone}</span>
+                </div>
+              )}
+
+              {contact.email && (
+                <div className="flex items-center gap-2.5">
+                  <div
+                    className="w-4 h-4 rounded-xs flex items-center justify-center text-neutral-950 shrink-0 shadow-xs"
+                    style={{ backgroundColor: accent }}
+                  >
+                    <Mail className="w-2.5 h-2.5" />
+                  </div>
+                  <span className="truncate max-w-[150px]">{contact.email}</span>
+                </div>
+              )}
+
+              {contact.links?.portfolio && (
+                <div className="flex items-center gap-2.5">
+                  <div
+                    className="w-4 h-4 rounded-xs flex items-center justify-center text-neutral-950 shrink-0 shadow-xs"
+                    style={{ backgroundColor: accent }}
+                  >
+                    <Globe className="w-2.5 h-2.5" />
+                  </div>
+                  <span className="truncate max-w-[150px]">{contact.links.portfolio}</span>
+                </div>
+              )}
+
+              {(contact.city || contact.country) && (
+                <div className="flex items-center gap-2.5">
+                  <div
+                    className="w-4 h-4 rounded-xs flex items-center justify-center text-neutral-950 shrink-0 shadow-xs"
+                    style={{ backgroundColor: accent }}
+                  >
+                    <MapPin className="w-2.5 h-2.5" />
+                  </div>
+                  <span className="truncate">
+                    {[contact.city, contact.country].filter(Boolean).join(', ')}
+                  </span>
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* EDUCACIÓN[cite: 10] */}
+          {validEducation.length > 0 && (
+            <section className="space-y-2.5">
+              <h2
+                className="text-[12px] font-black uppercase tracking-[0.2em] border-b pb-1 flex items-center gap-2"
+                style={{ color: accent, borderColor: `${accent}40` }}
+              >
+                <GraduationCap className="w-3.5 h-3.5 shrink-0" style={{ color: accent }} />
+                <span>Educación</span>
+              </h2>
+
+              <div className="space-y-3 pl-0.5">
+                {validEducation.map((edu) => (
+                  <div key={edu.id} className="space-y-0.5">
+                    <h3 className="font-bold text-[10px] uppercase tracking-wide text-white leading-tight">
+                      {edu.degree || 'Título Académico'}
+                    </h3>
+                    {edu.institution && (
+                      <p className="text-[9px] text-neutral-400 italic leading-tight">
+                        {edu.institution}
+                      </p>
+                    )}
+                    {(edu.startDate || edu.endDate) && (
+                      <p className="text-[8.5px] font-semibold" style={{ color: accent }}>
+                        {edu.startDate} {edu.startDate && (edu.endDate || edu.isCurrent) ? '–' : ''} {edu.isCurrent ? 'Actual' : edu.endDate}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* IDIOMAS */}
+          {validLanguages.length > 0 && (
+            <section className="space-y-2">
+              <h2
+                className="text-[12px] font-black uppercase tracking-[0.2em] border-b pb-1 flex items-center gap-2"
+                style={{ color: accent, borderColor: `${accent}40` }}
+              >
+                <LanguagesIcon className="w-3.5 h-3.5 shrink-0" style={{ color: accent }} />
+                <span>Idiomas</span>
+              </h2>
+
+              <div className="space-y-1.5 text-[9.5px] text-neutral-300 pl-0.5">
+                {validLanguages.map((l) => (
+                  <div key={l.id} className="flex justify-between border-b border-neutral-800/80 pb-0.5">
+                    <span className="font-semibold text-white">{l.language}</span>
+                    <span className="text-neutral-400 text-[9px] italic">{l.proficiency}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+
+        {/* BASE EN ARCO DORADO SÓLIDO (REFERENCIAS / RECONOCIMIENTOS)[cite: 10] */}
+        <div
+          className="p-6 pt-5 rounded-t-[36px] text-neutral-950 space-y-2 shadow-inner"
+          style={{ backgroundColor: accent }}
+        >
+          <div className="flex items-center gap-1.5 border-b border-neutral-950/30 pb-1">
+            <Users className="w-3.5 h-3.5 text-neutral-950" />
+            <h2 className="text-[12px] font-black uppercase tracking-[0.18em] text-neutral-950">
+              Referencias
+            </h2>
+          </div>
+
+          <div className="space-y-2.5 text-[9.5px] text-neutral-900 pt-0.5">
+            {validReferences.length > 0 ? (
+              validReferences.slice(0, 2).map((ref) => (
+                <div key={ref.id} className="space-y-0.5">
+                  <p className="font-black text-neutral-950 text-[10px] uppercase">
+                    {ref.name}
+                  </p>
+                  <p className="text-neutral-800 font-medium italic">
+                    {ref.relationship} {ref.company ? `• ${ref.company}` : ''}
+                  </p>
+                  {ref.phone && <p className="font-bold text-neutral-950">T: {ref.phone}</p>}
+                  {ref.email && <p className="text-neutral-800 text-[8.5px] break-all">{ref.email}</p>}
+                </div>
+              ))
+            ) : (
+              <p className="italic text-neutral-800 text-[9px]">
+                Referencias profesionales y corporativas disponibles a solicitud directa.
+              </p>
+            )}
+          </div>
+        </div>
+      </aside>
+
+      {/* ========================================================================= */}
+      {/* 2. COLUMNA DERECHA (~65% - CABECERA OSCURA + CUERPO EDITORIAL)             */}
+      {/* ========================================================================= */}
+      <main className="flex-1 flex flex-col justify-between">
+        {/* Cabecera Navy con Franja Lateral de Acento[cite: 10] */}
+        <header
+          className="bg-[#0e131f] text-white p-8 py-7 border-l-4 space-y-1 shadow-sm"
+          style={{ borderColor: accent }}
+        >
+          <h1 className="text-3xl sm:text-4xl tracking-tight uppercase leading-none">
+            <span className="font-black" style={{ color: accent }}>
+              {firstName}
+            </span>{' '}
+            <span className="font-light text-white">{lastName}</span>
+          </h1>
+          {contact.professionalTitle && (
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-neutral-300 pt-1">
+              {contact.professionalTitle}
+            </p>
+          )}
+        </header>
+
+        {/* Contenido Principal[cite: 10] */}
+        <div className="p-8 space-y-6 flex-1 flex flex-col justify-between">
+          <div className="space-y-6">
+            {/* PERFIL PROFESIONAL[cite: 10] */}
+            {summary && (
+              <section className="space-y-2">
+                <div className="flex items-center gap-2 border-b border-neutral-300 pb-1">
+                  <div
+                    className="w-2 h-2 rounded-full shrink-0"
+                    style={{ backgroundColor: accent }}
+                  />
+                  <h2 className="text-[13px] font-black uppercase tracking-[0.18em] text-neutral-950">
+                    Perfil Profesional
+                  </h2>
+                </div>
+                <p className="text-[10.5px] text-neutral-700 leading-relaxed text-justify pl-1">
+                  {summary}
+                </p>
+              </section>
+            )}
+
+            {/* EXPERIENCIA LABORAL[cite: 10] */}
+            {validExperiences.length > 0 && (
+              <section className="space-y-3">
+                <div className="flex items-center gap-2 border-b border-neutral-300 pb-1">
+                  <Briefcase className="w-3.5 h-3.5" style={{ color: accent }} />
+                  <h2 className="text-[13px] font-black uppercase tracking-[0.18em] text-neutral-950">
+                    Experiencia Laboral
+                  </h2>
+                </div>
+
+                <div className="space-y-4 pl-1">
+                  {validExperiences.map((exp) => (
+                    <div key={exp.id} className="relative space-y-1 border-l-2 border-neutral-200 ml-1.5 pl-3.5">
+                      {/* Timeline Dot */}
+                      <div
+                        className="absolute -left-[5px] top-1.5 w-2 h-2 rounded-full border border-white"
+                        style={{ backgroundColor: accent }}
+                      />
+
+                      <div className="flex justify-between items-baseline">
+                        <h3 className="font-bold text-[11px] uppercase tracking-wide text-neutral-950">
+                          {exp.position || 'Puesto Laboral'}
+                        </h3>
+                        {(exp.startDate || exp.endDate) && (
+                          <span className="text-[9.5px] font-bold text-neutral-500">
+                            {exp.startDate} {exp.startDate && (exp.endDate || exp.isCurrent) ? '–' : ''} {exp.isCurrent ? 'Actual' : exp.endDate}
+                          </span>
+                        )}
+                      </div>
+
+                      {exp.company && (
+                        <p className="text-[10px] font-semibold text-neutral-600 italic">
+                          {exp.company}
+                        </p>
+                      )}
+
+                      {exp.responsibilities && exp.responsibilities.length > 0 && (
+                        <ul className="space-y-1 pt-0.5 text-[10.5px] text-neutral-600 leading-relaxed">
+                          {exp.responsibilities
+                            .filter((r) => r.trim())
+                            .map((resp, idx) => (
+                              <li key={idx} className="flex items-start gap-1.5">
+                                <span className="font-bold shrink-0 mt-0.5" style={{ color: accent }}>
+                                  •
+                                </span>
+                                <span>{resp}</span>
+                              </li>
+                            ))}
+                        </ul>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
+
+          {/* HABILIDADES & COMPETENCIAS[cite: 10] */}
+          {validSkills.length > 0 && (
+            <section className="space-y-2.5 pt-2 border-t border-neutral-200">
+              <div className="flex items-center gap-2 pb-1">
+                <Sparkles className="w-3.5 h-3.5" style={{ color: accent }} />
+                <h2 className="text-[13px] font-black uppercase tracking-[0.18em] text-neutral-950">
+                  Habilidades & Competencias
+                </h2>
+              </div>
+
+              <div className="grid grid-cols-2 gap-x-8 gap-y-2.5 pt-1 pl-1">
+                {validSkills.map((skill) => (
+                  <div key={skill.id} className="space-y-1">
+                    <div className="flex justify-between text-[10px] font-semibold text-neutral-800">
+                      <span>{skill.name}</span>
+                      <span className="text-[9px] font-medium" style={{ color: accent }}>
+                        {skill.level}
+                      </span>
+                    </div>
+                    <div className="w-full h-1.5 bg-neutral-200 rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-300"
+                        style={{
+                          backgroundColor: '#0e131f',
+                          width: getSkillPercent(skill.level),
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Barra de Acreditación Ejecutiva Inferior */}
+          <footer className="pt-3 border-t border-neutral-200 flex items-center justify-between text-[9px] text-neutral-400">
+            <span className="uppercase tracking-widest font-bold text-neutral-600">
+              Corporate Prestige Edition
+            </span>
+            <span>Documento Formato Oficial Ejecutivo</span>
+          </footer>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default CorporateArchTemplate;
