@@ -9,7 +9,7 @@ interface ImportBannerProps {
 
 export const ImportBanner: React.FC<ImportBannerProps> = ({ onOpenModal }) => {
   return (
-    <div className="relative overflow-hidden bg-linear-to-r from-gray-950 via-gray-900 to-gray-950 rounded-3xl p-6 sm:p-8 border border-amber-500/30 shadow-2xl text-white">
+    <div className="relative overflow-hidden bg-gradient-to-r from-gray-950 via-gray-900 to-gray-950 rounded-3xl p-6 sm:p-8 border border-amber-500/30 shadow-2xl text-white">
       {/* Destellos de fondo */}
       <div className="absolute -right-10 -top-10 w-40 h-40 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-yellow-400/10 rounded-full blur-3xl pointer-events-none" />
