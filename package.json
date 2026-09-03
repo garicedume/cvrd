@@ -16,13 +16,16 @@
     "html2canvas-pro": "^2.4.1",
     "html2pdf.js": "^0.14.0",
     "lucide-react": "^1.39.0",
+    "mammoth": "^1.12.2",
     "next": "^16.3.4",
+    "pdf-parse": "^2.4.5",
     "react": "^19.x",
     "react-dom": "^19.x"
   },
   "devDependencies": {
     "@types/html2pdf.js": "^0.10.0",
     "@types/node": "^20",
+    "@types/pdf-parse": "^1.1.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "postcss": "^8.5.26",

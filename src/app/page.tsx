@@ -13,10 +13,13 @@ import {
 } from 'lucide-react';
 import PromoBanner from '@/components/ui/PromoBanner';
 import AuthorizedLogosTicker from '@/components/ui/AuthorizedLogosTicker';
+import { ImportBanner } from '@/components/ui/ImportBanner';
+import { ImportCVModal } from '@/components/builder/ImportCVModal';
 
 export default function HomePage() {
   const [b2bForm, setB2bForm] = useState({ nombre: '', negocio: '', contacto: '', mensaje: '' });
   const [b2bEnviado, setB2bEnviado] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   const handleB2bSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -145,6 +148,11 @@ export default function HomePage() {
 
           </div>
         </div>
+      </section>
+
+      {/* BANNER DE IMPORTACIÓN RÁPIDA EN INICIO */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <ImportBanner onOpenModal={() => setIsImportModalOpen(true)} />
       </section>
 
       {/* 🚀 FRANJA PROMOCIONAL 01 (Tamaño Estándar Original) */}
@@ -344,13 +352,21 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 🚀 FRANJA PROMOCIONAL 03 (50% Más Grande - scale-125 y más margen vertical) */}
+      {/* 🚀 FRANJA PROMOCIONAL 03 */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 scale-110 sm:scale-125 origin-center transition-transform">
         <PromoBanner id="promocion_03" altText="Promoción Especial CVRD 3" />
       </div>
 
-      {/* 🚀 5TA FRANJA: TICKER DE 10 LOGOS CORPORATIVOS ANIMADOS */}
       <AuthorizedLogosTicker />
+
+      {/* Modal de Importación */}
+      <ImportCVModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onFileAccepted={(file) => {
+          alert(`¡Archivo recibido: ${file.name}! Preparando motor de IA...`);
+        }}
+      />
 
     </div>
   );

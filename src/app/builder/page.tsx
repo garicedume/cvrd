@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { CVProvider, useCV } from '../../context/CVContext';
 import { StyleControls } from '../../components/builder/StyleControls';
 import { ExportModal } from '../../components/builder/ExportModal';
+import { ImportCVModal } from '../../components/builder/ImportCVModal';
 import { TEMPLATE_COMPONENTS } from '../../lib/templateRegistry';
 import { TEMPLATES_LIST } from '../../lib/templatesData';
 import { getExportPermissions } from '../../lib/permissions';
@@ -354,15 +355,14 @@ function BuilderContent() {
   const searchParams = useSearchParams();
   const templateFromUrl = searchParams.get('template');
 
-  // 🚀 AQUÍ ESTABA EL DETALLE FALTANTE:
   const ComponentToRender = TEMPLATE_COMPONENTS[activeTemplateId] || TEMPLATE_COMPONENTS['AcademicResearchTemplate'];
 
   const containerRef = useRef<HTMLDivElement>(null);
   const printAreaRef = useRef<HTMLDivElement>(null);
-  // ... resto del código
   
   const [scale, setScale] = useState<number>(0.65);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [paidTemplates, setPaidTemplates] = useState<Record<string, boolean>>({});
   const [photoError, setPhotoError] = useState<string | null>(null);
 
@@ -412,14 +412,12 @@ function BuilderContent() {
     }
   };
 
-  // Motor de Exportación Multi-Página Estilo Cascada/Word
   const handleGeneratePDF = async () => {
     if (!printAreaRef.current) return;
     try {
       const html2canvasPro = (await import('html2canvas-pro')).default;
       const { jsPDF } = await import('jspdf');
       
-      // Seleccionamos todas las páginas físicas virtuales renderizadas en cascada
       const pages = printAreaRef.current.querySelectorAll('.cv-page-sheet');
       const pdf = new jsPDF({ unit: 'in', format: 'letter', orientation: 'portrait' });
 
@@ -458,7 +456,7 @@ function BuilderContent() {
     <div className="min-h-screen bg-brand-bg text-gray-900 font-poppins py-6 selection:bg-brand-yellow selection:text-gray-950 relative">
       <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 space-y-6 relative z-10">
         
-        {/* Header Superior */}
+        {/* Header Superior con Botón de Importar CV */}
         <div className="bg-white rounded-3xl p-4 border border-gray-200 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-brand-yellow text-gray-950 flex items-center justify-center font-black shadow-md">
@@ -476,6 +474,15 @@ function BuilderContent() {
           </div>
 
           <div className="flex items-center gap-3 w-full md:w-auto">
+            <button
+              type="button"
+              onClick={() => setIsImportModalOpen(true)}
+              className="px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-gray-950 font-black text-xs rounded-full transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Subir tu CV viejo</span>
+            </button>
+
             <select
               value={activeTemplateId}
               onChange={(e) => setActiveTemplateId(e.target.value)}
@@ -751,7 +758,6 @@ function BuilderContent() {
           <div className="lg:col-span-7 sticky top-6">
             <div ref={containerRef} className="relative w-full bg-gray-100 rounded-3xl border border-gray-200 shadow-inner flex flex-col items-center p-6 overflow-y-auto max-h-[85vh]">
               
-              {/* Contenedor principal de hojas en cascada */}
               <div 
                 ref={printAreaRef}
                 className="flex flex-col items-center space-y-8 origin-top transition-transform duration-150"
@@ -760,7 +766,6 @@ function BuilderContent() {
                   marginBottom: `calc((1056px * ${scale}) - 1056px)`,
                 }}
               >
-                {/* Hoja 1 (Página Principal) */}
                 <div 
                   className="cv-page-sheet shrink-0 bg-white shadow-2xl relative rounded-none border border-gray-200 overflow-hidden"
                   style={{
@@ -779,7 +784,6 @@ function BuilderContent() {
                   )}
                 </div>
 
-                {/* Hoja 2 Dinámica (Se activa si hay contenido adicional o experiencias extensas) */}
                 {(cvData.experiences.length > 2 || cvData.education.length > 2 || (cvData.summary && cvData.summary.length > 300)) && (
                   <div 
                     className="cv-page-sheet shrink-0 bg-white shadow-2xl relative rounded-none border border-gray-200 overflow-hidden"
@@ -795,7 +799,6 @@ function BuilderContent() {
                           <span>Continuación — {cvData.contact.fullName || 'Carlos Mendoza'}</span>
                           <span>Página 2 / 2</span>
                         </div>
-                        {/* Renderizado de desborde estructurado para la segunda página */}
                         <div className="space-y-3">
                           <h3 className="font-black text-xs uppercase text-gray-900 border-b pb-1">Experiencia / Educación Adicional</h3>
                           {cvData.experiences.slice(2).map((exp: any) => (
@@ -840,6 +843,14 @@ function BuilderContent() {
         hasPaid={isCurrentPaid}
         onPaymentSuccess={handlePaymentSuccess}
         onGeneratePDF={handleGeneratePDF}
+      />
+
+      <ImportCVModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onFileAccepted={(file) => {
+          alert(`¡Archivo recibido en el editor: ${file.name}! Preparando Fase 2...`);
+        }}
       />
     </div>
   );
