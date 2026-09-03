@@ -3,6 +3,7 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { AuthProvider } from '../context/AuthContext';
+import AgeVerificationModal from '../components/ui/AgeVerificationModal'; // 🚀 Importamos el modal de edad
 import './globals.css';
 
 export default function RootLayout({
@@ -17,6 +18,9 @@ export default function RootLayout({
         onContextMenu={(e) => e.preventDefault()}
         onDragStart={(e) => e.preventDefault()}
       >
+        {/* Modal de Verificación de Edad Global (Bloquea la entrada si no se confirma) */}
+        <AgeVerificationModal />
+
         <AuthProvider>
           <Header />
           <main className="grow">{children}</main>

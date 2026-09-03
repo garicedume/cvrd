@@ -2,13 +2,16 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   typescript: {
-    // !! WARN !!
-    // Ignorar errores de tipos en producción para que Vercel no bloquee el deploy
     ignoreBuildErrors: true,
   },
-  eslint: {
-    // Ignorar errores de linter en producción
-    ignoreDuringBuilds: true,
+  // Configuramos un bloque vacío para Turbopack como lo pide Next.js 16
+  turbopack: {},
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      html2canvas: "html2canvas-pro",
+    };
+    return config;
   },
 };
 

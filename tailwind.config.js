@@ -9,14 +9,11 @@ module.exports = {
     extend: {
       colors: {
         brand: {
-          yellow: "#fbbf24",
-          bg: "#f4f2f2",
-        },
-      },
-      fontFamily: {
-        poppins: ["Poppins", "sans-serif"],
-      },
+          yellow: '#fbbf24',
+          bg: '#f4f2f2',
+        }
+      }
     },
   },
   plugins: [],
-};
+}

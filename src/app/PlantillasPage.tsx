@@ -2,11 +2,11 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { TEMPLATES_LIST, TemplateInfo } from '../../lib/templatesData';
-import { TemplateThumbnail } from '../../components/TemplateThumbnail';
+import { TEMPLATES_LIST, TemplateInfo } from '../lib/templatesData';
+import { TemplateThumbnail } from '../components/TemplateThumbnail';
 import { Search, CheckCircle2, ArrowRight } from 'lucide-react';
-import PromoBanner from '../../components/ui/PromoBanner';
-import AuthorizedLogosTicker from '../../components/ui/AuthorizedLogosTicker';
+import PromoBanner from '@/components/ui/PromoBanner';
+import AuthorizedLogosTicker from '@/components/ui/AuthorizedLogosTicker';
 
 export default function PlantillasPage() {
   const [filtroCategoria, setFiltroCategoria] = useState<'todas' | 'standard' | 'premium'>('todas');
@@ -35,23 +35,21 @@ export default function PlantillasPage() {
       onDragStart={(e) => e.preventDefault()}
     >
       
-      {/* Header del Catálogo (Forzado estrictamente a una sola línea) */}
-      <div className="text-center space-y-3 w-full">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-gray-900 tracking-tight whitespace-nowrap">
+      {/* Header del Catálogo */}
+      <div className="text-center space-y-3 max-w-3xl mx-auto">
+        <h1 className="text-3xl sm:text-5xl font-black text-gray-900 tracking-tight">
           Elige la plantilla perfecta para tu perfil
         </h1>
-        <p className="text-base text-gray-600 leading-relaxed font-normal max-w-2xl mx-auto">
+        <p className="text-base text-gray-600 leading-relaxed font-normal">
           Formatos probados y optimizados para el mercado laboral de República Dominicana. Descargables en formato Carta real de alta definición.
         </p>
       </div>
 
-      {/* 🚀 FRANJITA PROMOCIONAL 01 (Tamaño Estándar Original) */}
-      <div className="max-w-7xl mx-auto">
-        <PromoBanner id="promocion_01" altText="Promoción Plantillas 1" />
-      </div>
+      {/* 🚀 FRANJITA PROMOCIONAL 01 */}
+      <PromoBanner id="promocion_01" altText="Promoción Plantillas 1" />
 
       {/* Barra de Filtros y Buscador */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white/85 backdrop-blur-md p-4 rounded-3xl border border-gray-200/80 shadow-sm">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white/80 backdrop-blur-md p-4 rounded-3xl border border-gray-200/80 shadow-sm">
         
         <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
           <button
@@ -151,10 +149,8 @@ export default function PlantillasPage() {
         </div>
       )}
 
-      {/* 🚀 FRANJA PROMOCIONAL 02 (25% Más Grande - scale-110) */}
-      <div className="max-w-7xl mx-auto py-6 scale-105 sm:scale-110 origin-center transition-transform">
-        <PromoBanner id="promocion_02" altText="Promoción Plantillas 2" />
-      </div>
+      {/* 🚀 FRANJITA PROMOCIONAL 02 */}
+      <PromoBanner id="promocion_02" altText="Promoción Plantillas 2" />
 
       {/* Cuadro Informativo Inferior */}
       <div className="bg-amber-500 text-gray-950 rounded-3xl p-8 sm:p-10 shadow-lg flex flex-col md:flex-row items-center justify-between gap-6">
@@ -170,12 +166,10 @@ export default function PlantillasPage() {
         </div>
       </div>
 
-      {/* 🚀 FRANJA PROMOCIONAL 03 (50% Más Grande - scale-125) */}
-      <div className="max-w-7xl mx-auto py-10 scale-110 sm:scale-125 origin-center transition-transform">
-        <PromoBanner id="promocion_03" altText="Promoción Plantillas 3" />
-      </div>
+      {/* 🚀 FRANJITA PROMOCIONAL 03 */}
+      <PromoBanner id="promocion_03" altText="Promoción Plantillas 3" />
 
-      {/* TICKER DE LOGOS ANIMADOS */}
+      {/* 🚀 5TA FRANJA: TICKER DE LOGOS ANIMADOS */}
       <AuthorizedLogosTicker />
 
     </div>

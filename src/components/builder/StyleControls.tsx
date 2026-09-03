@@ -3,7 +3,7 @@
 import React from 'react';
 import { useCV } from '../../context/CVContext';
 import { FontFamilyType } from '../../types/cv';
-import { Type, Palette, Check, Pipette, Sliders } from 'lucide-react';
+import { Type, Palette, Check, Pipette } from 'lucide-react';
 
 const COLOR_PALETTES = [
   { name: 'Dorado Ámbar', value: '#fbbf24' },
@@ -97,53 +97,7 @@ export const StyleControls: React.FC = () => {
 
       <hr className="border-gray-200" />
 
-      {/* 2. ESCALA DE TEXTO */}
-      <div className="space-y-3">
-        <label className="flex items-center gap-2 text-xs font-black text-gray-900 uppercase tracking-wider">
-          <Sliders className="w-4 h-4 text-amber-500" />
-          Escala de Texto
-        </label>
-        
-        <div className="grid grid-cols-3 gap-2">
-          <button
-            type="button"
-            onClick={() => updateCVData({ fontSizeScale: 0.85 })}
-            className={`py-2.5 rounded-xl text-xs font-black border transition-all cursor-pointer ${
-              cvData.fontSizeScale === 0.85
-                ? 'bg-amber-400 text-gray-950 border-amber-400 shadow-xs ring-2 ring-amber-400/40'
-                : 'bg-gray-50 text-gray-800 border-gray-200 hover:bg-gray-100'
-            }`}
-          >
-            -A (Pequeño)
-          </button>
-          <button
-            type="button"
-            onClick={() => updateCVData({ fontSizeScale: 1.0 })}
-            className={`py-2.5 rounded-xl text-xs font-black border transition-all cursor-pointer ${
-              cvData.fontSizeScale === 1.0
-                ? 'bg-amber-400 text-gray-950 border-amber-400 shadow-xs ring-2 ring-amber-400/40'
-                : 'bg-gray-50 text-gray-800 border-gray-200 hover:bg-gray-100'
-            }`}
-          >
-            A (Normal)
-          </button>
-          <button
-            type="button"
-            onClick={() => updateCVData({ fontSizeScale: 1.15 })}
-            className={`py-2.5 rounded-xl text-xs font-black border transition-all cursor-pointer ${
-              cvData.fontSizeScale === 1.15
-                ? 'bg-amber-400 text-gray-950 border-amber-400 shadow-xs ring-2 ring-amber-400/40'
-                : 'bg-gray-50 text-gray-800 border-gray-200 hover:bg-gray-100'
-            }`}
-          >
-            A+ (Grande)
-          </button>
-        </div>
-      </div>
-
-      <hr className="border-gray-200" />
-
-      {/* 3. COLOR DE ACENTO */}
+      {/* 2. COLOR DE ACENTO */}
       <div className="space-y-4">
         <label className="flex items-center gap-2 text-xs font-black text-gray-900 uppercase tracking-wider">
           <Palette className="w-4 h-4 text-amber-500" />

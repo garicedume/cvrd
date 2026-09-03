@@ -11,6 +11,8 @@ import {
   Send, 
   FileCheck2
 } from 'lucide-react';
+import PromoBanner from '@/components/ui/PromoBanner';
+import AuthorizedLogosTicker from '@/components/ui/AuthorizedLogosTicker';
 
 export default function HomePage() {
   const [b2bForm, setB2bForm] = useState({ nombre: '', negocio: '', contacto: '', mensaje: '' });
@@ -93,7 +95,6 @@ export default function HomePage() {
                   </span>
                 </Link>
 
-                {/* Botón de Acceso Seguro Rediseñado (Sin icono) */}
                 <Link
                   href="/acceso-seguro"
                   className="px-8 py-4 bg-white/90 backdrop-blur-md hover:bg-gray-50 text-gray-900 border border-gray-200 font-bold text-base rounded-full shadow-xs hover:shadow-md hover:border-gray-400 transition-all duration-300 flex items-center justify-center active:scale-95"
@@ -146,7 +147,12 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* FRANJA 2: PLANTILLAS REALES CON SUS RESPECTIVAS IMÁGENES */}
+      {/* 🚀 FRANJA PROMOCIONAL 01 (Tamaño Estándar Original) */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <PromoBanner id="promocion_01" altText="Promoción Especial CVRD 1" />
+      </div>
+
+      {/* FRANJA 2: PLANTILLAS REALES */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="text-center space-y-3 mb-12">
           <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
@@ -159,7 +165,6 @@ export default function HomePage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           
-          {/* 1. PLANTILLA EXECUTIVE GOLD ($5.00) */}
           <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 flex flex-col justify-between hover:shadow-lg transition-all duration-300 group hover:-translate-y-1">
             <div>
               <div className="flex justify-between items-center mb-3 px-1">
@@ -169,25 +174,16 @@ export default function HomePage() {
                 <span className="text-xs text-gray-500 font-mono font-bold">USD $5.00</span>
               </div>
               <div className="relative aspect-8.5/11 w-full rounded-xl overflow-hidden bg-gray-100 mb-4 border border-gray-100">
-                <Image
-                  src="/template_executive.jpg"
-                  alt="Executive Gold Template"
-                  fill
-                  className="object-cover object-top group-hover:scale-105 transition-transform duration-500 pointer-events-none select-none"
-                />
+                <Image src="/template_executive.jpg" alt="Executive Gold" fill className="object-cover object-top group-hover:scale-105 transition-transform duration-500 pointer-events-none select-none" />
               </div>
               <h3 className="font-bold text-gray-900 text-lg">Executive Gold</h3>
               <p className="text-xs text-gray-500 mt-1">Estructura ejecutiva dorada optimizada para puestos de liderazgo y gerencia.</p>
             </div>
-            <Link
-              href="/builder?template=ExecutiveGoldTemplate"
-              className="mt-6 w-full py-3 bg-gray-900 hover:bg-amber-500 hover:text-gray-950 text-white font-bold text-sm rounded-full text-center transition-all duration-300 shadow-sm block active:scale-95"
-            >
+            <Link href="/builder?template=ExecutiveGoldTemplate" className="mt-6 w-full py-3 bg-gray-900 hover:bg-amber-500 hover:text-gray-950 text-white font-bold text-sm rounded-full text-center transition-all duration-300 shadow-sm block active:scale-95">
               Usar plantilla
             </Link>
           </div>
 
-          {/* 2. PLANTILLA ATS MINIMAL ($2.00) */}
           <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 flex flex-col justify-between hover:shadow-lg transition-all duration-300 group hover:-translate-y-1">
             <div>
               <div className="flex justify-between items-center mb-3 px-1">
@@ -197,25 +193,16 @@ export default function HomePage() {
                 <span className="text-xs text-gray-500 font-mono font-bold">USD $2.00</span>
               </div>
               <div className="relative aspect-8.5/11 w-full rounded-xl overflow-hidden bg-gray-100 mb-4 border border-gray-100">
-                <Image
-                  src="/template_ats.jpg"
-                  alt="ATS Minimal Template"
-                  fill
-                  className="object-cover object-top group-hover:scale-105 transition-transform duration-500 pointer-events-none select-none"
-                />
+                <Image src="/template_ats.jpg" alt="ATS Minimal" fill className="object-cover object-top group-hover:scale-105 transition-transform duration-500 pointer-events-none select-none" />
               </div>
               <h3 className="font-bold text-gray-900 text-lg">ATS Minimal</h3>
               <p className="text-xs text-gray-500 mt-1">Diseño de alta legibilidad diseñado para lecturas automatizadas y filtros ATS.</p>
             </div>
-            <Link
-              href="/builder?template=ATSMinimalTemplate"
-              className="mt-6 w-full py-3 bg-gray-900 hover:bg-amber-500 hover:text-gray-950 text-white font-bold text-sm rounded-full text-center transition-all duration-300 shadow-sm block active:scale-95"
-            >
+            <Link href="/builder?template=ATSMinimalTemplate" className="mt-6 w-full py-3 bg-gray-900 hover:bg-amber-500 hover:text-gray-950 text-white font-bold text-sm rounded-full text-center transition-all duration-300 shadow-sm block active:scale-95">
               Usar plantilla
             </Link>
           </div>
 
-          {/* 3. PLANTILLA SLATE MODERN ($2.00) */}
           <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 flex flex-col justify-between hover:shadow-lg transition-all duration-300 group hover:-translate-y-1">
             <div>
               <div className="flex justify-between items-center mb-3 px-1">
@@ -225,20 +212,12 @@ export default function HomePage() {
                 <span className="text-xs text-gray-500 font-mono font-bold">USD $2.00</span>
               </div>
               <div className="relative aspect-8.5/11 w-full rounded-xl overflow-hidden bg-gray-100 mb-4 border border-gray-100">
-                <Image
-                  src="/template_slate.jpg"
-                  alt="Slate Modern Template"
-                  fill
-                  className="object-cover object-top group-hover:scale-105 transition-transform duration-500 pointer-events-none select-none"
-                />
+                <Image src="/template_slate.jpg" alt="Slate Modern" fill className="object-cover object-top group-hover:scale-105 transition-transform duration-500 pointer-events-none select-none" />
               </div>
               <h3 className="font-bold text-gray-900 text-lg">Slate Modern</h3>
               <p className="text-xs text-gray-500 mt-1">Líneas contemporáneas en tonos pizarra para profesionales técnicos y creativos.</p>
             </div>
-            <Link
-              href="/builder?template=SlateModernTemplate"
-              className="mt-6 w-full py-3 bg-gray-900 hover:bg-amber-500 hover:text-gray-950 text-white font-bold text-sm rounded-full text-center transition-all duration-300 shadow-sm block active:scale-95"
-            >
+            <Link href="/builder?template=SlateModernTemplate" className="mt-6 w-full py-3 bg-gray-900 hover:bg-amber-500 hover:text-gray-950 text-white font-bold text-sm rounded-full text-center transition-all duration-300 shadow-sm block active:scale-95">
               Usar plantilla
             </Link>
           </div>
@@ -246,7 +225,12 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* FRANJA 3: B2B Y RECUADRO INFORMATIVO MERCADO RD */}
+      {/* 🚀 FRANJA PROMOCIONAL 02 (25% Más Grande - scale-110) */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 scale-105 sm:scale-110 origin-center transition-transform">
+        <PromoBanner id="promocion_02" altText="Promoción Especial CVRD 2" />
+      </div>
+
+      {/* FRANJA 3: B2B Y RECUADRO INFORMATIVO */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-12">
         <div className="bg-[#111827] text-white rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden border border-gray-800">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
@@ -359,6 +343,14 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+
+      {/* 🚀 FRANJA PROMOCIONAL 03 (50% Más Grande - scale-125 y más margen vertical) */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 scale-110 sm:scale-125 origin-center transition-transform">
+        <PromoBanner id="promocion_03" altText="Promoción Especial CVRD 3" />
+      </div>
+
+      {/* 🚀 5TA FRANJA: TICKER DE 10 LOGOS CORPORATIVOS ANIMADOS */}
+      <AuthorizedLogosTicker />
 
     </div>
   );

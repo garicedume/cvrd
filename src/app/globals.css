@@ -45,12 +45,17 @@ body {
   background: #ffffff;
 }
 
-/* Bloqueo estricto de selección y arrastre de imágenes sin advertencias de linter */
 img {
   -webkit-user-drag: none;
   user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  pointer-events: none;
+}
+
+/* Animación continua de la franja de logos (Marquee) */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-100%); }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
 }
