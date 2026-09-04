@@ -75,8 +75,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Usamos gemini-2.5-flash (rápido y con excelente soporte de JSON estructurado)
-    const promptText = `Eres un parser experto de currículums y analista de recursos humanos. Analiza el texto del CV proporcionado y extrae la información de manera precisa. Devuélveme ÚNICAMENTE un objeto JSON válido (sin bloques de código markdown extra si es posible, o limpio) con la siguiente estructura exacta:
+    const promptText = `Eres un parser experto de currículums y analista de recursos humanos. Analiza el texto del CV proporcionado y extrae la información de manera precisa. Devuélveme ÚNICAMENTE un objeto JSON válido con la siguiente estructura exacta:
     {
       "contact": {
         "fullName": "string",
@@ -121,7 +120,7 @@ export async function POST(request: Request) {
     Texto del CV:
     ${extractedText.trim()}`;
 
-    const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+    const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -150,8 +149,7 @@ export async function POST(request: Request) {
     let structuredCV = null;
     if (completionContent) {
       try {
-        // Limpiamos por si acaso Gemini devuelve marcas de código markdown
-        const cleanJsonText = completioncontent.replace(/```json/g, '').replace(/```/g, '').trim();
+        const cleanJsonText = completionContent.replace(/```json/g, '').replace(/```/g, '').trim();
         structuredCV = JSON.parse(cleanJsonText);
       } catch (parseError) {
         console.error('Error parseando el JSON de Gemini:', parseError);
