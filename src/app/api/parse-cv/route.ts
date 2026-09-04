@@ -1,6 +1,14 @@
 import { NextResponse } from 'next/server';
 import mammoth from 'mammoth';
 
+// 🛑 PARCHE DE COMPATIBILIDAD: Definimos DOMMatrix para que Node.js no colapse al leer PDFs
+if (typeof global.DOMMatrix === 'undefined') {
+  // @ts-ignore
+  global.DOMMatrix = class DOMMatrix {
+    constructor() {}
+  };
+}
+
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
@@ -19,7 +27,7 @@ export async function POST(request: Request) {
     const mimeType = file.type;
     const fileName = file.name.toLowerCase();
 
-    // 1. Extracción estricta para PDF (Usando require seguro en servidor)
+    // 1. Extracción estricta para PDF
     if (mimeType === 'application/pdf' || fileName.endsWith('.pdf')) {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const pdfParse = require('pdf-parse');
@@ -40,7 +48,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Validación rigurosa: Si el documento no tiene suficiente texto real, se rechaza
     if (!extractedText || extractedText.trim().length < 20) {
       return NextResponse.json(
         { success: false, error: 'El archivo parece estar vacío o el texto no se pudo leer correctamente.' },
