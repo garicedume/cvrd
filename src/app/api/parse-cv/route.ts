@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import mammoth from 'mammoth';
 
-// Parche global para prevenir errores de entorno en Node.js
+// Parche global para prevenir errores de entorno en Node.js al leer PDFs
 if (typeof global.DOMMatrix === 'undefined') {
   // @ts-ignore
   global.DOMMatrix = class DOMMatrix {
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
       } catch (pdfError) {
         console.error('Error interno en pdf-parse:', pdfError);
         return NextResponse.json(
-          { success: false, error: 'No se pudo leer el contenido del PDF. Intenta con otro archivo o formato Word.' },
+          { success: false, error: 'No se pudo leer el contenido del PDF. Intenta con formato Word.' },
           { status: 400 }
         );
       }
@@ -64,95 +64,98 @@ export async function POST(request: Request) {
     }
 
     // ==========================================
-    // ANÁLISIS CON INTELIGENCIA ARTIFICIAL (OPENAI)
+    // ANÁLISIS INTELIGENTE CON GOOGLE GEMINI
     // ==========================================
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
     
     if (!apiKey) {
       return NextResponse.json(
-        { success: false, error: 'La API Key de OpenAI no está configurada en el servidor.' },
+        { success: false, error: 'La API Key de Gemini no está configurada en el servidor.' },
         { status: 500 }
       );
     }
 
-    const aiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Usamos gemini-2.5-flash (rápido y con excelente soporte de JSON estructurado)
+    const promptText = `Eres un parser experto de currículums y analista de recursos humanos. Analiza el texto del CV proporcionado y extrae la información de manera precisa. Devuélveme ÚNICAMENTE un objeto JSON válido (sin bloques de código markdown extra si es posible, o limpio) con la siguiente estructura exacta:
+    {
+      "contact": {
+        "fullName": "string",
+        "professionalTitle": "string",
+        "phone": "string",
+        "email": "string",
+        "city": "string",
+        "country": "string"
+      },
+      "summary": "string",
+      "experiences": [
+        {
+          "company": "string",
+          "position": "string",
+          "startDate": "string",
+          "endDate": "string",
+          "responsibilities": ["string"]
+        }
+      ],
+      "education": [
+        {
+          "degree": "string",
+          "institution": "string",
+          "startDate": "string",
+          "endDate": "string"
+        }
+      ],
+      "skills": [
+        {
+          "name": "string",
+          "category": "technical"
+        }
+      ],
+      "languages": [
+        {
+          "language": "string",
+          "proficiency": "Intermedio"
+        }
+      ]
+    }
+
+    Texto del CV:
+    ${extractedText.trim()}`;
+
+    const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
+        contents: [
           {
-            role: 'system',
-            content: `Eres un parser experto de currículums. Analiza el texto del CV proporcionado y extrae la información de manera precisa. Devuélveme un objeto JSON estricto con la siguiente estructura exacta:
-            {
-              "contact": {
-                "fullName": "string",
-                "professionalTitle": "string",
-                "phone": "string",
-                "email": "string",
-                "city": "string",
-                "country": "string"
-              },
-              "summary": "string",
-              "experiences": [
-                {
-                  "company": "string",
-                  "position": "string",
-                  "startDate": "string",
-                  "endDate": "string",
-                  "responsibilities": ["string"]
-                }
-              ],
-              "education": [
-                {
-                  "degree": "string",
-                  "institution": "string",
-                  "startDate": "string",
-                  "endDate": "string"
-                }
-              ],
-              "skills": [
-                {
-                  "name": "string",
-                  "category": "technical"
-                }
-              ],
-              "languages": [
-                {
-                  "language": "string",
-                  "proficiency": "Intermedio"
-                }
-              ]
-            }`
-          },
-          {
-            role: 'user',
-            content: extractedText.trim()
+            parts: [{ text: promptText }]
           }
         ],
-        temperature: 0.1,
-        response_format: { type: "json_object" }
+        generationConfig: {
+          temperature: 0.1,
+          responseMimeType: "application/json"
+        }
       }),
     });
 
-    const aiData = await aiResponse.json();
+    const geminiData = await geminiResponse.json();
     
-    if (!aiResponse.ok) {
-      throw new Error(aiData.error?.message || 'Error al comunicarse con el servicio de IA.');
+    if (!geminiResponse.ok) {
+      throw new Error(geminiData.error?.message || 'Error al comunicarse con la API de Google Gemini.');
     }
 
-    const completionContent = aiData.choices?.[0]?.message?.content;
+    const completionContent = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
 
     let structuredCV = null;
     if (completionContent) {
       try {
-        structuredCV = JSON.parse(completionContent);
+        // Limpiamos por si acaso Gemini devuelve marcas de código markdown
+        const cleanJsonText = completioncontent.replace(/```json/g, '').replace(/```/g, '').trim();
+        structuredCV = JSON.parse(cleanJsonText);
       } catch (parseError) {
-        console.error('Error parseando el JSON de la IA:', parseError);
-        throw new Error('La IA devolvió un formato no válido.');
+        console.error('Error parseando el JSON de Gemini:', parseError);
+        throw new Error('Gemini devolvió un formato no válido.');
       }
     }
 
@@ -165,7 +168,7 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error('Error crítico en el backend:', error);
     return NextResponse.json(
-      { success: false, error: error.message || 'Ocurrió un error al procesar el archivo.' },
+      { success: false, error: error.message || 'Ocurrió un error al procesar el archivo con Gemini.' },
       { status: 500 }
     );
   }
