@@ -845,7 +845,7 @@ function BuilderContent() {
         onGeneratePDF={handleGeneratePDF}
       />
 
-      {/* Modal de Importación Integrado Limpio */}
+      {/* Modal de Importación Integrado Limpio (Sin Alertas) */}
       <ImportCVModal
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { useRouter } from 'next/navigation'; // <-- 1. Importamos el enrutador para el salto automático al editor
+import { useRouter } from 'next/navigation';
 import { UploadCloud, FileText, X, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 import { useCV } from '../../context/CVContext';
 
@@ -14,8 +14,6 @@ interface ImportCVModalProps {
 const ALLOWED_TYPES = [
   'application/pdf',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'image/jpeg',
-  'image/png',
 ];
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
@@ -25,9 +23,8 @@ export const ImportCVModal: React.FC<ImportCVModalProps> = ({
   onClose,
   onFileAccepted,
 }) => {
-  const router = useRouter(); // <-- 2. Inicializamos el router
+  const router = useRouter();
 
-  // Manejo seguro del contexto para prevenir fallos durante el SSR
   let updateCVData = (data: any) => {};
   let updateContact = (contact: any) => {};
 
@@ -36,7 +33,7 @@ export const ImportCVModal: React.FC<ImportCVModalProps> = ({
     updateCVData = cvContext.updateCVData;
     updateContact = cvContext.updateContact;
   } catch (e) {
-    // Entorno sin proveedor ignorado de forma segura
+    // Entorno sin proveedor ignorado
   }
 
   const [dragActive, setDragActive] = useState(false);
@@ -60,8 +57,8 @@ export const ImportCVModal: React.FC<ImportCVModalProps> = ({
   const validateAndSetFile = (file: File) => {
     setError(null);
 
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      setError('Formato no permitido. Por favor sube un archivo PDF, Word (.docx), JPG o PNG.');
+    if (!ALLOWED_TYPES.includes(file.type) && !file.name.toLowerCase().endsWith('.pdf') && !file.name.toLowerCase().endsWith('.docx')) {
+      setError('Formato no permitido. Por favor sube un archivo PDF o Word (.docx).');
       setSelectedFile(null);
       return;
     }
@@ -92,7 +89,6 @@ export const ImportCVModal: React.FC<ImportCVModalProps> = ({
     }
   };
 
-  // 🚀 FLUJO COMPLETO: Sincronización + Salto automático al Editor (Pasos 3 y 4)
   const handleConfirmUpload = async () => {
     if (!selectedFile) return;
 
@@ -121,7 +117,8 @@ export const ImportCVModal: React.FC<ImportCVModalProps> = ({
       if (result.parsedData) {
         const parsed = result.parsedData;
 
-        if (parsed.contact) {
+        // 🛡️ Asignación segura de contacto
+        if (parsed.contact && typeof parsed.contact === 'object') {
           updateContact({
             fullName: parsed.contact.fullName || '',
             professionalTitle: parsed.contact.professionalTitle || '',
@@ -132,9 +129,15 @@ export const ImportCVModal: React.FC<ImportCVModalProps> = ({
           });
         }
 
+        // 🛡️ Mapeos blindados para evitar errores de tipo 'is not a function'
+        const safeExperiences = Array.isArray(parsed.experiences) ? parsed.experiences : [];
+        const safeEducation = Array.isArray(parsed.education) ? parsed.education : [];
+        const safeSkills = Array.isArray(parsed.skills) ? parsed.skills : [];
+        const safeLanguages = Array.isArray(parsed.languages) ? parsed.languages : [];
+
         updateCVData({
           summary: parsed.summary || '',
-          experiences: parsed.experiences?.map((exp: any, index: number) => ({
+          experiences: safeExperiences.map((exp: any, index: number) => ({
             id: `exp-imported-${index}-${Date.now()}`,
             company: exp.company || '',
             position: exp.position || '',
@@ -142,10 +145,10 @@ export const ImportCVModal: React.FC<ImportCVModalProps> = ({
             startDate: exp.startDate || '',
             endDate: exp.endDate || 'Presente',
             isCurrent: false,
-            responsibilities: exp.responsibilities || [''],
+            responsibilities: Array.isArray(exp.responsibilities) ? exp.responsibilities : [exp.responsibilities || ''],
             achievements: '',
-          })) || [],
-          education: parsed.education?.map((edu: any, index: number) => ({
+          })),
+          education: safeEducation.map((edu: any, index: number) => ({
             id: `edu-imported-${index}-${Date.now()}`,
             degree: edu.degree || '',
             institution: edu.institution || '',
@@ -153,25 +156,23 @@ export const ImportCVModal: React.FC<ImportCVModalProps> = ({
             startDate: edu.startDate || '',
             endDate: edu.endDate || '',
             isCurrent: false,
-          })) || [],
-          skills: parsed.skills?.map((sk: any, index: number) => ({
+          })),
+          skills: safeSkills.map((sk: any, index: number) => ({
             id: `sk-imported-${index}-${Date.now()}`,
-            name: sk.name || sk,
+            name: typeof sk === 'string' ? sk : (sk.name || ''),
             level: 'Avanzado',
             category: sk.category || 'technical',
-          })) || [],
-          languages: parsed.languages?.map((lang: any, index: number) => ({
+          })),
+          languages: safeLanguages.map((lang: any, index: number) => ({
             id: `lang-imported-${index}-${Date.now()}`,
-            language: lang.language || lang,
+            language: typeof lang === 'string' ? lang : (lang.language || ''),
             proficiency: lang.proficiency || 'Intermedio',
-          })) || [],
+          })),
         });
       }
 
       setIsProcessing(false);
       onClose();
-      
-      // ✨ AQUÍ ESTÁ EL CAMBIO CLAVE: Redirige automáticamente al editor (Paso 3 y 4)
       router.push('/builder');
 
     } catch (err: any) {
@@ -220,7 +221,7 @@ export const ImportCVModal: React.FC<ImportCVModalProps> = ({
           <input
             ref={fileInputRef}
             type="file"
-            accept=".pdf,.docx,.jpg,.jpeg,.png"
+            accept=".pdf,.docx"
             onChange={handleChange}
             disabled={isProcessing}
             className="hidden"
@@ -245,7 +246,7 @@ export const ImportCVModal: React.FC<ImportCVModalProps> = ({
                 Arrastra y suelta tu CV aquí, o <span className="text-amber-600 underline">búscalo en tu equipo</span>
               </p>
               <p className="text-[10px] text-gray-400 font-medium">
-                Formatos: PDF, Word (.docx), JPG, PNG (Máximo 5MB)
+                Formatos: PDF, Word (.docx) (Máximo 5MB)
               </p>
             </div>
           )}
