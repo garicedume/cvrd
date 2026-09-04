@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import mammoth from 'mammoth';
 
-// 🛑 PARCHE DE COMPATIBILIDAD: Definimos DOMMatrix para que Node.js no colapse al leer PDFs
+// Parche global para prevenir errores de entorno en Node.js
 if (typeof global.DOMMatrix === 'undefined') {
   // @ts-ignore
   global.DOMMatrix = class DOMMatrix {
@@ -27,14 +27,22 @@ export async function POST(request: Request) {
     const mimeType = file.type;
     const fileName = file.name.toLowerCase();
 
-    // 1. Extracción estricta para PDF
+    // 1. Extracción segura para PDF
     if (mimeType === 'application/pdf' || fileName.endsWith('.pdf')) {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const pdfParse = require('pdf-parse');
-      const pdfData = await pdfParse(buffer);
-      extractedText = pdfData.text;
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const pdfParse = require('pdf-parse/lib/pdf-parse.js');
+        const pdfData = await pdfParse(buffer);
+        extractedText = pdfData.text;
+      } catch (pdfError) {
+        console.error('Error interno en pdf-parse:', pdfError);
+        return NextResponse.json(
+          { success: false, error: 'No se pudo leer el contenido del PDF. Intenta con otro archivo o formato Word.' },
+          { status: 400 }
+        );
+      }
     } 
-    // 2. Extracción estricta para Word (.docx)
+    // 2. Extracción para Word (.docx)
     else if (
       mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
       fileName.endsWith('.docx')
@@ -48,15 +56,15 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!extractedText || extractedText.trim().length < 20) {
+    if (!extractedText || extractedText.trim().length < 15) {
       return NextResponse.json(
-        { success: false, error: 'El archivo parece estar vacío o el texto no se pudo leer correctamente.' },
+        { success: false, error: 'El archivo parece estar vacío o el texto no se pudo extraer.' },
         { status: 400 }
       );
     }
 
     // ==========================================
-    // ANÁLISIS REAL CON INTELIGENCIA ARTIFICIAL
+    // ANÁLISIS CON INTELIGENCIA ARTIFICIAL (OPENAI)
     // ==========================================
     const apiKey = process.env.OPENAI_API_KEY;
     
@@ -78,7 +86,7 @@ export async function POST(request: Request) {
         messages: [
           {
             role: 'system',
-            content: `Eres un parser experto de currículums y analista de recursos humanos. Analiza el texto del CV proporcionado y extrae la información de manera precisa. Devuélveme un objeto JSON estricto con la siguiente estructura exacta:
+            content: `Eres un parser experto de currículums. Analiza el texto del CV proporcionado y extrae la información de manera precisa. Devuélveme un objeto JSON estricto con la siguiente estructura exacta:
             {
               "contact": {
                 "fullName": "string",
@@ -143,7 +151,7 @@ export async function POST(request: Request) {
       try {
         structuredCV = JSON.parse(completionContent);
       } catch (parseError) {
-        console.error('Error parseando el JSON devuelto por la IA:', parseError);
+        console.error('Error parseando el JSON de la IA:', parseError);
         throw new Error('La IA devolvió un formato no válido.');
       }
     }
@@ -155,9 +163,9 @@ export async function POST(request: Request) {
     });
 
   } catch (error: any) {
-    console.error('Error crítico en el proceso de parsing:', error);
+    console.error('Error crítico en el backend:', error);
     return NextResponse.json(
-      { success: false, error: error.message || 'Ocurrió un error al procesar el archivo en el servidor.' },
+      { success: false, error: error.message || 'Ocurrió un error al procesar el archivo.' },
       { status: 500 }
     );
   }
