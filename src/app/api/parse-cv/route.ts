@@ -120,7 +120,8 @@ export async function POST(request: Request) {
     Texto del CV:
     ${extractedText.trim()}`;
 
-    const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+    // Usamos gemini-2.0-flash que es el estándar actual totalmente compatible con v1beta
+    const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
