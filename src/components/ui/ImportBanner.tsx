@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Sparkles, ArrowRight, FileUp } from 'lucide-react';
+import { ArrowRight, FileUp, Zap } from 'lucide-react';
 
 interface ImportBannerProps {
   onOpenModal: () => void;
@@ -9,33 +9,41 @@ interface ImportBannerProps {
 
 export const ImportBanner: React.FC<ImportBannerProps> = ({ onOpenModal }) => {
   return (
-    <div className="relative overflow-hidden bg-gradient-to-r from-gray-950 via-gray-900 to-gray-950 rounded-3xl p-6 sm:p-8 border border-amber-500/30 shadow-2xl text-white">
-      {/* Destellos de fondo */}
-      <div className="absolute -right-10 -top-10 w-40 h-40 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-yellow-400/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="relative overflow-hidden bg-linear-to-br from-gray-950 via-gray-900 to-black rounded-[2.5rem] p-8 sm:p-12 border-2 border-amber-400/40 shadow-2xl text-white">
+      {/* Destellos y luces de fondo de alta intensidad */}
+      <div className="absolute -right-20 -top-20 w-72 h-72 bg-amber-400/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -left-20 -bottom-20 w-72 h-72 bg-yellow-500/10 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-6">
-        <div className="space-y-2 text-left">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/30 text-amber-400 text-[11px] font-black uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5 animate-pulse" />
-            <span>Ahorra tiempo al instante</span>
+      <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
+        <div className="space-y-4 text-left max-w-2xl">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-400/15 border border-amber-400/40 text-amber-400 text-xs font-black uppercase tracking-widest shadow-inner">
+            <Zap className="w-4 h-4 text-amber-400 fill-amber-400 animate-pulse" />
+            <span>Tecnología de Importación con IA</span>
           </div>
-          <h3 className="text-xl sm:text-2xl font-black tracking-tight text-white">
-            ¿Ya tienes un CV viejo y no quieres empezar de cero?
+          
+          <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-white leading-tight">
+            ¿Ya tienes un CV viejo? <br />
+            <span className="text-amber-400">Transfórmalo y actualízalo al instante.</span>
           </h3>
-          <p className="text-xs sm:text-sm text-gray-300 font-medium max-w-xl leading-relaxed">
-            Sube tu currículum actual en PDF, Word o imagen. Nuestra tecnología extrae tus datos y los coloca automáticamente en una plantilla moderna de alto impacto visual.
+          
+          <p className="text-sm sm:text-base text-gray-300 font-medium leading-relaxed">
+            Sube tu currículum actual en formato PDF, Word o imagen. Nuestra inteligencia artificial extraerá toda tu información y la colocará mágicamente en una plantilla profesional lista para destacar en República Dominicana.
           </p>
         </div>
 
-        <button
-          onClick={onOpenModal}
-          className="shrink-0 px-6.5 py-4 bg-amber-400 hover:bg-amber-300 text-gray-950 font-black text-xs uppercase tracking-wider rounded-2xl shadow-lg hover:shadow-amber-400/25 transition-all duration-300 flex items-center gap-2.5 active:scale-95 cursor-pointer group"
-        >
-          <FileUp className="w-4 h-4 text-gray-950 group-hover:-translate-y-0.5 transition-transform" />
-          <span>Subir mi CV viejo y actualizarlo</span>
-          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-        </button>
+        <div className="shrink-0 w-full lg:w-auto flex flex-col items-center">
+          <button
+            onClick={onOpenModal}
+            className="w-full lg:w-auto px-8 py-5 bg-amber-400 hover:bg-amber-300 text-gray-950 font-black text-sm uppercase tracking-wider rounded-2xl shadow-xl hover:shadow-amber-400/30 transition-all duration-300 flex items-center justify-center gap-3 active:scale-95 cursor-pointer group border border-amber-300"
+          >
+            <FileUp className="w-5 h-5 text-gray-950 group-hover:-translate-y-1 transition-transform" />
+            <span>Subir mi CV viejo y actualizarlo</span>
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
+          </button>
+          <span className="text-[11px] text-gray-400 font-semibold mt-2.5">
+            ⚡ Rápido, seguro y sin empezar de cero
+          </span>
+        </div>
       </div>
     </div>
   );

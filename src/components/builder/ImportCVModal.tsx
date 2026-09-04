@@ -1,18 +1,19 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
+import { useRouter } from 'next/navigation'; // <-- 1. Importamos el enrutador para el salto automático al editor
 import { UploadCloud, FileText, X, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
-import { useCV } from '../../context/CVContext'; // Sincronización con el estado global
+import { useCV } from '../../context/CVContext';
 
 interface ImportCVModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onFileAccepted?: (file: File) => void; // Mantenemos la prop original por compatibilidad
+  onFileAccepted?: (file: File) => void;
 }
 
 const ALLOWED_TYPES = [
   'application/pdf',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'image/jpeg',
   'image/png',
 ];
@@ -24,7 +25,9 @@ export const ImportCVModal: React.FC<ImportCVModalProps> = ({
   onClose,
   onFileAccepted,
 }) => {
-  // Manejo seguro del contexto para prevenir fallos durante el prerenderizado en servidor (SSR)
+  const router = useRouter(); // <-- 2. Inicializamos el router
+
+  // Manejo seguro del contexto para prevenir fallos durante el SSR
   let updateCVData = (data: any) => {};
   let updateContact = (contact: any) => {};
 
@@ -33,7 +36,7 @@ export const ImportCVModal: React.FC<ImportCVModalProps> = ({
     updateCVData = cvContext.updateCVData;
     updateContact = cvContext.updateContact;
   } catch (e) {
-    // Si se ejecuta en un entorno sin proveedor, se ignora de forma segura
+    // Entorno sin proveedor ignorado de forma segura
   }
 
   const [dragActive, setDragActive] = useState(false);
@@ -57,14 +60,12 @@ export const ImportCVModal: React.FC<ImportCVModalProps> = ({
   const validateAndSetFile = (file: File) => {
     setError(null);
 
-    // Validación de tipo de archivo
     if (!ALLOWED_TYPES.includes(file.type)) {
       setError('Formato no permitido. Por favor sube un archivo PDF, Word (.docx), JPG o PNG.');
       setSelectedFile(null);
       return;
     }
 
-    // Validación de tamaño estricto (< 5MB)
     if (file.size > MAX_FILE_SIZE) {
       setError('El archivo supera el límite de 5MB. Por favor elige uno más liviano.');
       setSelectedFile(null);
@@ -91,7 +92,7 @@ export const ImportCVModal: React.FC<ImportCVModalProps> = ({
     }
   };
 
-  // Lógica completa de envío a la API y Sincronización con el Contexto Global
+  // 🚀 FLUJO COMPLETO: Sincronización + Salto automático al Editor (Pasos 3 y 4)
   const handleConfirmUpload = async () => {
     if (!selectedFile) return;
 
@@ -117,11 +118,9 @@ export const ImportCVModal: React.FC<ImportCVModalProps> = ({
         throw new Error(result.error || 'Error al procesar el archivo.');
       }
 
-      // Si la IA devolvió datos estructurados limpios, actualizamos el CVContext
       if (result.parsedData) {
         const parsed = result.parsedData;
 
-        // Sincronizamos contacto
         if (parsed.contact) {
           updateContact({
             fullName: parsed.contact.fullName || '',
@@ -133,7 +132,6 @@ export const ImportCVModal: React.FC<ImportCVModalProps> = ({
           });
         }
 
-        // Sincronizamos resumen, experiencias, educación, habilidades e idiomas
         updateCVData({
           summary: parsed.summary || '',
           experiences: parsed.experiences?.map((exp: any, index: number) => ({
@@ -172,7 +170,9 @@ export const ImportCVModal: React.FC<ImportCVModalProps> = ({
 
       setIsProcessing(false);
       onClose();
-      alert('¡CV importado y sincronizado con éxito! Revisa tus datos en los campos del editor.');
+      
+      // ✨ AQUÍ ESTÁ EL CAMBIO CLAVE: Redirige automáticamente al editor (Paso 3 y 4)
+      router.push('/builder');
 
     } catch (err: any) {
       console.error(err);
@@ -185,7 +185,6 @@ export const ImportCVModal: React.FC<ImportCVModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/80 backdrop-blur-sm p-4 font-poppins">
       <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 border border-gray-200 shadow-2xl relative space-y-6">
         
-        {/* Botón Cerrar */}
         <button
           onClick={onClose}
           disabled={isProcessing}
@@ -194,7 +193,6 @@ export const ImportCVModal: React.FC<ImportCVModalProps> = ({
           <X className="w-5 h-5" />
         </button>
 
-        {/* Header */}
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-2xl bg-amber-400 text-gray-950 flex items-center justify-center font-black shadow-md shadow-amber-400/20">
             <UploadCloud className="w-6 h-6" />
@@ -207,7 +205,6 @@ export const ImportCVModal: React.FC<ImportCVModalProps> = ({
           </div>
         </div>
 
-        {/* Zona de Arrastre (Drag & Drop) */}
         <div
           onDragEnter={handleDrag}
           onDragLeave={handleDrag}
@@ -254,7 +251,6 @@ export const ImportCVModal: React.FC<ImportCVModalProps> = ({
           )}
         </div>
 
-        {/* Mensaje de Error */}
         {error && (
           <div className="p-3 bg-red-50 border border-red-200 rounded-2xl flex items-center gap-2 text-red-700 text-xs font-bold">
             <AlertCircle className="w-4 h-4 shrink-0" />
@@ -262,7 +258,6 @@ export const ImportCVModal: React.FC<ImportCVModalProps> = ({
           </div>
         )}
 
-        {/* Botón de Acción Principal */}
         <button
           disabled={!selectedFile || isProcessing}
           onClick={handleConfirmUpload}

@@ -845,12 +845,10 @@ function BuilderContent() {
         onGeneratePDF={handleGeneratePDF}
       />
 
+      {/* Modal de Importación Integrado Limpio */}
       <ImportCVModal
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
-        onFileAccepted={(file) => {
-          alert(`¡Archivo recibido en el editor: ${file.name}! Preparando Fase 2...`);
-        }}
       />
     </div>
   );
