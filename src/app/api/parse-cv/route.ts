@@ -19,50 +19,45 @@ export async function POST(request: Request) {
     const mimeType = file.type;
     const fileName = file.name.toLowerCase();
 
-    // 1. Extracción para PDF (Usando require seguro en servidor)
+    // 1. Extracción estricta para PDF (Usando require seguro en servidor)
     if (mimeType === 'application/pdf' || fileName.endsWith('.pdf')) {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const pdfParse = require('pdf-parse');
       const pdfData = await pdfParse(buffer);
       extractedText = pdfData.text;
     } 
-    // 2. Extracción para Word (.docx)
+    // 2. Extracción estricta para Word (.docx)
     else if (
       mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
       fileName.endsWith('.docx')
     ) {
       const result = await mammoth.extractRawText({ buffer });
       extractedText = result.value;
-    } 
-    // 3. Extracción para Imágenes (JPG / PNG)
-    else if (mimeType.startsWith('image/') || fileName.match(/\.(jpg|jpeg|png)$/)) {
-      extractedText = `[Archivo de imagen detectado: ${file.name}]`;
     } else {
       return NextResponse.json(
-        { success: false, error: 'Formato de archivo no soportado para extracción.' },
+        { success: false, error: 'Formato no soportado. Sube únicamente un archivo PDF o Word (.docx).' },
         { status: 400 }
       );
     }
 
-    if (!extractedText || extractedText.trim().length < 10) {
+    // Validación rigurosa: Si el documento no tiene suficiente texto real, se rechaza
+    if (!extractedText || extractedText.trim().length < 20) {
       return NextResponse.json(
-        { success: false, error: 'El archivo parece estar vacío o no contiene texto legible.' },
+        { success: false, error: 'El archivo parece estar vacío o el texto no se pudo leer correctamente.' },
         { status: 400 }
       );
     }
 
     // ==========================================
-    // MAPEO INTELIGENTE CON IA (FASE 3)
+    // ANÁLISIS REAL CON INTELIGENCIA ARTIFICIAL
     // ==========================================
     const apiKey = process.env.OPENAI_API_KEY;
     
     if (!apiKey) {
-      return NextResponse.json({
-        success: true,
-        warning: 'API Key de IA no configurada. Se devolvió texto plano.',
-        rawText: extractedText.trim(),
-        parsedData: null,
-      });
+      return NextResponse.json(
+        { success: false, error: 'La API Key de OpenAI no está configurada en el servidor.' },
+        { status: 500 }
+      );
     }
 
     const aiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -76,7 +71,7 @@ export async function POST(request: Request) {
         messages: [
           {
             role: 'system',
-            content: `Eres un parser experto de currículums y analista de recursos humanos. Analiza el texto del CV proporcionado y devuélveme un objeto JSON estricto con la siguiente estructura exacta:
+            content: `Eres un parser experto de currículums y analista de recursos humanos. Analiza el texto del CV proporcionado y extrae la información de manera precisa. Devuélveme un objeto JSON estricto con la siguiente estructura exacta:
             {
               "contact": {
                 "fullName": "string",
@@ -120,7 +115,7 @@ export async function POST(request: Request) {
           },
           {
             role: 'user',
-            content: extractedText
+            content: extractedText.trim()
           }
         ],
         temperature: 0.1,
@@ -129,6 +124,11 @@ export async function POST(request: Request) {
     });
 
     const aiData = await aiResponse.json();
+    
+    if (!aiResponse.ok) {
+      throw new Error(aiData.error?.message || 'Error al comunicarse con el servicio de IA.');
+    }
+
     const completionContent = aiData.choices?.[0]?.message?.content;
 
     let structuredCV = null;
@@ -137,6 +137,7 @@ export async function POST(request: Request) {
         structuredCV = JSON.parse(completionContent);
       } catch (parseError) {
         console.error('Error parseando el JSON devuelto por la IA:', parseError);
+        throw new Error('La IA devolvió un formato no válido.');
       }
     }
 
@@ -147,9 +148,9 @@ export async function POST(request: Request) {
     });
 
   } catch (error: any) {
-    console.error('Error en el proceso de parsing:', error);
+    console.error('Error crítico en el proceso de parsing:', error);
     return NextResponse.json(
-      { success: false, error: 'Ocurrió un error al procesar el archivo en el servidor.' },
+      { success: false, error: error.message || 'Ocurrió un error al procesar el archivo en el servidor.' },
       { status: 500 }
     );
   }
