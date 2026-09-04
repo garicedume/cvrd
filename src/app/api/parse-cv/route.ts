@@ -1,8 +1,5 @@
 import { NextResponse } from 'next/server';
 import mammoth from 'mammoth';
-// @ts-ignore
-// @ts-ignore
-const pdfParse = require('pdf-parse');
 
 export async function POST(request: Request) {
   try {
@@ -22,21 +19,27 @@ export async function POST(request: Request) {
     const mimeType = file.type;
     const fileName = file.name.toLowerCase();
 
-    // 1. Extracción de texto crudo (Fase 2)
+    // 1. Extracción para PDF (Importación dinámica para evitar errores de DOMMatrix en el build)
     if (mimeType === 'application/pdf' || fileName.endsWith('.pdf')) {
-      const pdfData = await pdfParse(buffer);
+      const pdfParseModule = await import('pdf-parse');
+      const pdfParser = pdfParseModule.default || pdfParseModule;
+      const pdfData = await pdfParser(buffer);
       extractedText = pdfData.text;
-    } else if (
+    } 
+    // 2. Extracción para Word (.docx)
+    else if (
       mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
       fileName.endsWith('.docx')
     ) {
       const result = await mammoth.extractRawText({ buffer });
       extractedText = result.value;
-    } else if (mimeType.startsWith('image/') || fileName.match(/\.(jpg|jpeg|png)$/)) {
-      extractedText = `[Archivo de imagen: ${file.name}]`;
+    } 
+    // 3. Extracción para Imágenes (JPG / PNG)
+    else if (mimeType.startsWith('image/') || fileName.match(/\.(jpg|jpeg|png)$/)) {
+      extractedText = `[Archivo de imagen detectado: ${file.name}]`;
     } else {
       return NextResponse.json(
-        { success: false, error: 'Formato de archivo no soportado.' },
+        { success: false, error: 'Formato de archivo no soportado para extracción.' },
         { status: 400 }
       );
     }
@@ -49,12 +52,11 @@ export async function POST(request: Request) {
     }
 
     // ==========================================
-    // FASE 3: MAPEO INTELIGENTE CON IA (EL CEREBRO)
+    // MAPEO INTELIGENTE CON IA (FASE 3)
     // ==========================================
-    const apiKey = process.env.OPENAI_API_KEY; // O tu clave de IA configurada
+    const apiKey = process.env.OPENAI_API_KEY;
     
     if (!apiKey) {
-      // Fallback si la API key no está configurada temporalmente, devolvemos el texto plano
       return NextResponse.json({
         success: true,
         warning: 'API Key de IA no configurada. Se devolvió texto plano.',
@@ -63,7 +65,6 @@ export async function POST(request: Request) {
       });
     }
 
-    // Llamada al modelo de lenguaje para estructurar el JSON exacto de CVRD
     const aiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -75,7 +76,7 @@ export async function POST(request: Request) {
         messages: [
           {
             role: 'system',
-            content: `Eres un parser experto de currículums y analista de recursos humanos. Analiza el texto del CV proporcionado y devuélveme un objeto JSON estricto (y NADA más que el JSON, sin bloques de código markdown si es posible, o un JSON puro parseable) con la siguiente estructura exacta:
+            content: `Eres un parser experto de currículums y analista de recursos humanos. Analiza el texto del CV proporcionado y devuélveme un objeto JSON estricto con la siguiente estructura exacta:
             {
               "contact": {
                 "fullName": "string",
@@ -123,7 +124,7 @@ export async function POST(request: Request) {
           }
         ],
         temperature: 0.1,
-        response_format: { type: "json_object" } // Forzar respuesta JSON estricta en OpenAI
+        response_format: { type: "json_object" }
       }),
     });
 
@@ -146,9 +147,9 @@ export async function POST(request: Request) {
     });
 
   } catch (error: any) {
-    console.error('Error en el proceso de parsing con IA:', error);
+    console.error('Error en el proceso de parsing:', error);
     return NextResponse.json(
-      { success: false, error: 'Ocurrió un error al procesar el CV con inteligencia artificial.' },
+      { success: false, error: 'Ocurrió un error al procesar el archivo en el servidor.' },
       { status: 500 }
     );
   }
