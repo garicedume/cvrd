@@ -20,12 +20,12 @@ export async function POST(request: Request) {
     const fileName = file.name.toLowerCase();
 
     // 1. Extracción para PDF (Importación dinámica para evitar errores de DOMMatrix en el build)
+    // 1. Extracción para PDF (Usando require evaluado para evitar conflictos de TypeScript y DOMMatrix)
     if (mimeType === 'application/pdf' || fileName.endsWith('.pdf')) {
-      const pdfParseModule = await import('pdf-parse');
-      const pdfParser = pdfParseModule.default || pdfParseModule;
+      const pdfParser = eval('require')('pdf-parse');
       const pdfData = await pdfParser(buffer);
       extractedText = pdfData.text;
-    } 
+    }
     // 2. Extracción para Word (.docx)
     else if (
       mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||

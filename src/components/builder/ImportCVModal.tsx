@@ -24,7 +24,18 @@ export const ImportCVModal: React.FC<ImportCVModalProps> = ({
   onClose,
   onFileAccepted,
 }) => {
-  const { updateCVData, updateContact } = useCV(); // Obtenemos las funciones de actualización del contexto
+  // Manejo seguro del contexto para prevenir fallos durante el prerenderizado en servidor (SSR)
+  let updateCVData = (data: any) => {};
+  let updateContact = (contact: any) => {};
+
+  try {
+    const cvContext = useCV();
+    updateCVData = cvContext.updateCVData;
+    updateContact = cvContext.updateContact;
+  } catch (e) {
+    // Si se ejecuta en un entorno sin proveedor, se ignora de forma segura
+  }
+
   const [dragActive, setDragActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
